@@ -139,7 +139,12 @@ class Signale {
     let safeMessage = message;
 
     _secrets.forEach(secret => {
-      safeMessage = safeMessage.replace(new RegExp(secret, 'g'), '[secure]');
+      if (secret.length === 0) {
+        return;
+      }
+
+      const escapedSecret = secret.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      safeMessage = safeMessage.replace(new RegExp(escapedSecret, 'g'), '[secure]');
     });
 
     return safeMessage;
