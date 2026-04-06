@@ -18,7 +18,7 @@ class Signale {
   constructor(options = {}) {
     this._interactive = options.interactive || false;
     this._config = Object.assign(this.packageConfiguration, options.config);
-    this._customTypes = Object.assign({}, options.types);
+    this._customTypes = this._sanitizeTypes(options.types);
     this._disabled = options.disabled || false;
     this._scopeName = options.scope || '';
     this._timers = options.timers || new Map();
@@ -119,10 +119,22 @@ class Signale {
     return Object.keys(this._logLevels).includes(level) ? level : 'info';
   }
 
+  _sanitizeTypes(types = {}) {
+    const safeTypes = {};
+
+    Object.keys(types).forEach(type => {
+      if (!['__proto__', 'prototype', 'constructor'].includes(type)) {
+        safeTypes[type] = types[type];
+      }
+    });
+
+    return safeTypes;
+  }
+
   _mergeTypes(standard, custom) {
     const types = Object.assign({}, standard);
 
-    Object.keys(custom).forEach(type => {
+    Object.keys(this._sanitizeTypes(custom)).forEach(type => {
       types[type] = Object.assign({}, types[type], custom[type]);
     });
 
